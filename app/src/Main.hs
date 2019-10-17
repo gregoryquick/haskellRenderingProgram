@@ -2,6 +2,7 @@ module Main where
 
 import Graphics.UI.Gtk
 import Graphics.Rendering.Cairo
+import System.Directory
 
 import Rendering
 
@@ -10,6 +11,7 @@ main = do
     renderWith surface sketch
     surfaceWriteToPNG surface "/data/out.png"
     getLine
+    removeFile "/data/out.png"
 --    initGUI
 --    window <- windowNew
 --    button <- buttonNew
