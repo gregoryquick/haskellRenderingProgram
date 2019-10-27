@@ -1,18 +1,44 @@
-module Rendering(sketch) where
+module Rendering where
 
 import Graphics.Rendering.Cairo
+import Control.Monad.Reader
 
-bg :: Render ()
-bg = do
-  setSourceRGBA 0 0 0 1
-  rectangle 0 0 500 500
-  fill
+data RasterizationParameters = RasterizationParameters
+  { horizontalPixels :: Int
+  , verticalPixels :: Int
+  -- , horizontalPixelSpacing :: Double
+  -- , verticalPixelSpacing :: Double
+  -- , renderOriginX :: Double
+  -- , renderOriginY :: Double
+  }
 
-drawSquare :: Render ()
+data RGBAValue = RGBAValue
+  { red :: Double
+  , blue :: Double
+  , green :: Double
+  , alpha :: Double
+  }
+
+type Generate a = Reader RasterizationParameters a
+
+fillDefualtColour :: Generate (Render ())
+fillDefualtColour = do
+  (RasterizationParameters w h) <- ask
+  return $ do
+    setSourceRGBA 0 0 0 1
+    rectangle 0 0 (fromIntegral w) (fromIntegral h)
+    fill
+
+drawSquare :: Generate (Render ())
 drawSquare = do
-  setSourceRGBA 1 1 0 1
-  rectangle 10 10 100 100
-  fill
+  return $ do
+    setSourceRGBA 1 1 0 1
+    rectangle 10 10 10 10
+    fill
 
-sketch :: Render ()
-sketch = bg >> drawSquare
+black = RGBAValue 0 0 0 1
+
+sketch :: Generate (Render ())
+sketch = do
+  renderSequence <- sequence [fillDefualtColour, drawSquare]
+  return $ foldr1 (>>) renderSequence
