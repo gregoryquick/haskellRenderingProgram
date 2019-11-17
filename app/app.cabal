@@ -22,4 +22,5 @@ executable app
     cairo,
     gtk,
     directory,
-    mtl
+    mtl,
+    array

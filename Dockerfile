@@ -16,6 +16,7 @@ RUN cabal install --global cairo
 RUN cabal install --global gio
 RUN cabal install --global pango
 RUN cabal install --global gtk
+RUN cabal install --global array
 ARG CACHEBUST=1 
 COPY . .
 WORKDIR app

@@ -2,6 +2,7 @@ module Rendering where
 
 import Graphics.Rendering.Cairo
 import Control.Monad.Reader
+import Data.Word
 
 data RasterizationParameters = RasterizationParameters
   { horizontalPixels :: Int
@@ -13,11 +14,13 @@ data RasterizationParameters = RasterizationParameters
   }
 
 data RGBAValue = RGBAValue
-  { red :: Double
-  , blue :: Double
-  , green :: Double
-  , alpha :: Double
+  { red :: Word8
+  , green :: Word8
+  , blue :: Word8
+  , alpha :: Word8
   }
+
+type ColourFunction = Double -> Double -> RGBAValue
 
 type Generate a = Reader RasterizationParameters a
 
@@ -38,7 +41,13 @@ drawSquare = do
 
 black = RGBAValue 0 0 0 1
 
-sketch :: Generate (Render ())
-sketch = do
-  renderSequence <- sequence [fillDefualtColour, drawSquare]
+canvas :: Generate (Render ())
+canvas = do
+  renderSequence <- sequence [fillDefualtColour]
   return $ foldr1 (>>) renderSequence
+
+--sketch :: Generate (ColourFunction) -> Generate (Render ())
+--sketch = do
+--  (RasterizationParameters w h) <- ask
+--  return $ do
+--    createImageSurface FormatRGB24 w h
