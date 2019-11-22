@@ -13,26 +13,9 @@ import Data.Word
 import Rendering
 
 main = do
-    let world = RasterizationParameters 50 50
-    surface <- createImageSurface FormatARGB32 (horizontalPixels world) (verticalPixels world)
-    renderWith surface $ runReader canvas world
-    -- surface <- imageSurfaceCreateFromPNG "/data/in.png"
-    --renderWith surface $ runReader fillSquare world
-    renderWith surface $ runReader (evalState fillAnimated 1) world
-    format <- imageSurfaceGetFormat surface
-    print format
-    samplePixel <- getPixel surface 23 23
-    print samplePixel
-    surfaceWriteToPNG surface "/data/out.png"
-    -- getLine
-    -- removeFile "/data/out.png"
     initGUI
     window <- windowNew
     set window [ containerBorderWidth := 10]
-    -- button <- buttonNew
-    -- set window [ containerChild := button ]
-    -- set button [ buttonLabel := "Hello World" ]
-    -- onClicked button (putStrLn "Hello World")
     drawingArea <- drawingAreaNew
     onExpose drawingArea $ const (updateImage drawingArea)
     set window [ containerChild := drawingArea]
