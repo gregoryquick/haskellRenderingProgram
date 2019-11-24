@@ -13,6 +13,21 @@ data RasterizationParameters = RasterizationParameters
   -- , renderOriginY :: Double
   }
 
+createRasterizationParameters :: Int -> Int -> RasterizationParameters
+createRasterizationParameters w h = RasterizationParameters w h
+
+data CanvasCoordinates = CanvasCoordinates
+  { horizontalCoord :: Double
+  , verticalCoord :: Double
+  , lengthOfShortSide :: Double
+  }
+
+canvasToPixelHorizontal :: CanvasCoordinates -> Int -> Int
+canvasToPixelHorizontal (CanvasCoordinates horizontalCoord verticalCoord lengthOfShortSide) hightInPixels = floor $ (horizontalCoord/lengthOfShortSide) * (fromIntegral hightInPixels)
+
+canvasToPixelVertical :: CanvasCoordinates -> Int -> Int
+canvasToPixelVertical (CanvasCoordinates horizontalCoord verticalCoord lengthOfShortSide) lengthInPixels = floor $ (verticalCoord/lengthOfShortSide) * (fromIntegral lengthInPixels)
+
 data RGBAValue = RGBAValue
   { red :: Word8
   , green :: Word8
@@ -24,8 +39,8 @@ type ColourFunction = Double -> Double -> RGBAValue
 
 type Generate a = Reader RasterizationParameters a
 
-fillDefualtColour :: Generate (Render ())
-fillDefualtColour = do
+fillBackround :: Generate (Render ())
+fillBackround = do
   (RasterizationParameters w h) <- ask
   return $ do
     setSourceRGBA 0 0 0 1
@@ -43,7 +58,7 @@ black = RGBAValue 0 0 0 1
 
 canvas :: Generate (Render ())
 canvas = do
-  renderSequence <- sequence [fillDefualtColour]
+  renderSequence <- sequence [fillBackround]
   return $ foldr1 (>>) renderSequence
 
 --sketch :: Generate (ColourFunction) -> Generate (Render ())
