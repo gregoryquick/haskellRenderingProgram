@@ -1,9 +1,7 @@
 module Rendering where
 
-import Graphics.UI.Gtk hiding (rectangle, get)
 import Graphics.Rendering.Cairo
 import Control.Monad.Reader
-import Data.Word
 
 import Structure
 
@@ -25,8 +23,8 @@ fillBackround = do
     rectangle 0 0 (fromIntegral w) (fromIntegral h)
     fill
 
-fillAnimated :: ProgramState -> Generate (Render ())
-fillAnimated currentState = do
+drawState :: ProgramState -> Generate (Render ())
+drawState currentState = do
   (RasterizationParameters w h) <- ask
   return $ do
     let currentTime = stateTime currentState
@@ -36,15 +34,3 @@ fillAnimated currentState = do
     setSourceRGBA red green blue 1
     rectangle ((fromIntegral w)/4) ((fromIntegral h)/4) ((fromIntegral w)/2) ((fromIntegral h)/2)
     fill
-
-
-drawAllthings :: DrawingArea -> ProgramState -> (IO Bool)
-drawAllthings areaToDraw currentState = do
-  window <- widgetGetDrawWindow areaToDraw
-  (w,h) <- widgetGetSize areaToDraw
-  let world = createRasterizationParameters w h
-  renderWithDrawable window $ runReader (do
-    renderSequence <- sequence [fillBackround,fillAnimated currentState]
-    return $ foldr1 (>>) renderSequence
-    ) world
-  return True
