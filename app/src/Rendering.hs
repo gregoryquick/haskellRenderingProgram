@@ -1,3 +1,4 @@
+{-# LANGUAGE MultiWayIf #-}
 module Rendering where
 
 import Graphics.Rendering.Cairo
@@ -5,32 +6,29 @@ import Control.Monad.Reader
 
 import Structure
 
-data RasterizationParameters = RasterizationParameters
-  { horizontalPixels :: Int
-  , verticalPixels :: Int
-  }
+data Paramaters = Paramaters {
+  horizontal :: Int,
+  vertical :: Int
+}
 
-createRasterizationParameters :: Int -> Int -> RasterizationParameters
-createRasterizationParameters w h = RasterizationParameters w h
+data RGBAColor = RGBAColor {
+  r :: Double,
+  g :: Double,
+  b :: Double,
+  a :: Double
+}
 
-type Generate a = Reader RasterizationParameters a
+createImageSurfaceFromParam (Paramaters h v) = createImageSurface FormatARGB32 h v
 
-fillBackround :: Generate (Render ())
-fillBackround = do
-  (RasterizationParameters w h) <- ask
-  return $ do
-    setSourceRGBA 0 0 0 1
-    rectangle 0 0 (fromIntegral w) (fromIntegral h)
-    fill
+type Generate a = Reader Paramaters a
 
-drawState :: ProgramState -> Generate (Render ())
-drawState currentState = do
-  (RasterizationParameters w h) <- ask
-  return $ do
-    let currentTime = stateTime currentState
-    let red = 1/(currentTime)
-    let blue = 1/(currentTime)
-    let green = 1/(currentTime)
-    setSourceRGBA red green blue 1
-    rectangle ((fromIntegral w)/4) ((fromIntegral h)/4) ((fromIntegral w)/2) ((fromIntegral h)/2)
-    fill
+getAspectRatio :: Int -> Int -> Double
+getAspectRatio h v = (fromIntegral h) / (fromIntegral v)
+
+inCircle :: World -> (Double, Double) -> RGBAColor
+inCircle world (x,y)
+  | ((x-getX(world))^2)+((y-0)^2) <= (1/8)^2 = RGBAColor 1 1 1 1
+  | otherwise = RGBAColor 0 0 0 1
+
+setColour :: RGBAColor -> Render ()
+setColour (RGBAColor r g b a) = setSourceRGBA r g b a

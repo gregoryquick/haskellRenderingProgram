@@ -6,6 +6,7 @@ import Data.IORef
 
 import Rendering
 import Structure
+import Rasterizer
 
 main = do
     initGUI
@@ -16,18 +17,16 @@ main = do
     set window [ containerBorderWidth := 0]
     widgetSetSizeRequest window 20 10
     drawingArea <- drawingAreaNew
-    globalState <- newIORef $ ProgramState 1.0
 
     timeoutAddFull (do
-      currentState <- readIORef globalState
-      keepUpdating <- render drawingArea currentState
-      modifyIORef' globalState tickTimeForward
+      let world = startingWorld
+      keepUpdating <- render drawingArea world
       return keepUpdating
       ) priorityDefaultIdle 10
 
     onExpose drawingArea $ const (do
-      currentState <- readIORef globalState
-      render drawingArea currentState
+      let world = startingWorld
+      render drawingArea world
       )
 
     set window [ containerChild := drawingArea]
@@ -35,13 +34,12 @@ main = do
     onDestroy window mainQuit
     mainGUI
 
-render :: DrawingArea -> ProgramState -> (IO Bool)
-render areaToDraw currentState = do
+startingWorld = World (0.5) (0.0)
+
+render :: DrawingArea -> World -> (IO Bool)
+render areaToDraw world = do
   window <- widgetGetDrawWindow areaToDraw
   (w,h) <- widgetGetSize areaToDraw
-  let world = createRasterizationParameters w h
-  renderWithDrawable window $ runReader (do
-    renderSequence <- sequence [fillBackround,drawState currentState]
-    return $ foldr1 (>>) renderSequence
-    ) world
+  let param = Paramaters w h
+  renderWithDrawable window $ runReader (sketch world inCircle) param
   return True
