@@ -16,8 +16,7 @@ RUN cabal install --global cairo
 RUN cabal install --global gio
 RUN cabal install --global pango-0.13.6.0
 RUN cabal install --global gtk
-RUN cabal install --global array
-ARG CACHEBUST=1 
+RUN cabal install --global netwire
 COPY . .
 WORKDIR app
 RUN cabal build

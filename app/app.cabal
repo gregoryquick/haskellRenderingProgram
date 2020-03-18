@@ -23,4 +23,5 @@ executable app
     gtk,
     directory,
     mtl,
-    array
+    netwire,
+    time
